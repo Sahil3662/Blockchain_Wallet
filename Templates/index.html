@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Blockchain Wallet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            --secondary-gradient: linear-gradient(to right, #1a1a2e, #16213e, #0f3460);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.85);
+            --form-text: #ffffff;
+            --accent-color: #6e45e2;
+            --warning-color: #ffd166;
+            --success-color: #06d6a0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background: var(--secondary-gradient);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        /* Enhanced Navbar Styles */
+        .navbar {
+            background: rgba(30, 30, 60, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-color) !important;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            font-size: 1.4rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            background: rgba(110, 69, 226, 0.2);
+        }
+        
+        .dropdown-menu {
+            background: rgba(30, 30, 60, 0.98);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-item {
+            color: var(--text-color);
+            padding: 0.5rem 1.5rem;
+            margin: 0.2rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(110, 69, 226, 0.3);
+            color: var(--text-color);
+        }
+        
+        .dropdown-item.text-danger {
+            color: #ff6b6b !important;
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background: rgba(255, 107, 107, 0.1) !important;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            color: var(--text-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(110, 69, 226, 0.3);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .card-title, h1, h2, h3, h4, h5, h6 {
+            color: var(--text-color) !important;
+            font-weight: 600;
+        }
+        
+        /* Forms */
+        .form-control, .form-label {
+            color: var(--form-text) !important;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 0 0.25rem rgba(110, 69, 226, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(110, 69, 226, 0.4);
+        }
+        
+        /* Wallet Info */
+        .wallet-info {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            padding: 1.5rem;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .private-key-container {
+            position: relative;
+            margin-top: 8px;
+        }
+        
+        .toggle-private-key {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .toggle-private-key:hover {
+            color: var(--text-color);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .private-key {
+            padding-right: 40px;
+            font-family: 'Roboto Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            display: inline-block;
+            width: 100%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            -webkit-text-security: disc;
+            text-security: disc;
+        }
+        
+        .wallet-address {
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: inline-block;
+            width: 100%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Alerts */
+        .alert-warning {
+            background: rgba(255, 209, 102, 0.15);
+            border-color: rgba(255, 209, 102, 0.3);
+            color: var(--warning-color);
+        }
+        
+        /* Network Toggle */
+        .network-toggle {
+            position: fixed;
+            top: 15px;
+            right: 230px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            padding: 5px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .network-toggle:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+            }
+            
+            .dropdown-menu {
+                background: rgba(30, 30, 60, 0.98);
+                border: none;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .network-toggle {
+                position: static;
+                margin-bottom: 1rem;
+                display: inline-block;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Network Toggle -->
+    <div class="network-toggle">
+        <button id="networkToggle" class="btn btn-sm btn-outline-light">
+            <i class="fas fa-network-wired me-1"></i>
+            <span id="networkText">Ganache</span>
+        </button>
+    </div>
+
+    <!-- Updated Navbar with Simplified Profile Dropdown -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-wallet me-2"></i>Blockchain Wallet
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span>{{ current_user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center text-danger" href="{{ url_for('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        <span>Logout</span>
+                                    </a>
+                                    <form id="logout-form" action="{{ url_for('logout') }}" method="POST" style="display: none;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}"><i class="fas fa-user-plus me-1"></i>Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4"><i class="fas fa-wallet me-2"></i>Your Blockchain Wallet</h1>
+            <p class="lead">Manage your Ethereum wallets and transactions</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Create Wallet Card -->
+            <div class="col-lg-6">
+                <div class="card h-100 p-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4"><i class="fas fa-plus-circle me-2"></i>Create Wallet</h3>
+                        <button id="createWallet" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-plus me-2"></i>Create New Wallet
+                        </button>
+                        <div id="walletInfo" class="wallet-info mt-4" style="display:none;">
+                            <h5 class="mb-3">Your New Wallet</h5>
+                            <p><strong>Address:</strong> 
+                                <span id="walletAddress" class="d-block mt-2 wallet-address"></span>
+                            </p>
+                            <p class="mt-3"><strong>Private Key:</strong>
+                                <div class="private-key-container mt-2">
+                                    <span id="walletPrivateKey" class="private-key"></span>
+                                    <button class="toggle-private-key" onclick="togglePrivateKeyVisibility('walletPrivateKey', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </p>
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Save your private key securely. It cannot be recovered if lost.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check Balance Card -->
+            <div class="col-lg-6">
+                <div class="card h-100 p-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4"><i class="fas fa-coins me-2"></i>Check Balance</h3>
+                        <div class="input-group mb-3">
+                            <input type="text" id="checkBalanceAddress" class="form-control" placeholder="Wallet address">
+                            <button id="checkBalance" class="btn btn-primary">
+                                <i class="fas fa-search-dollar"></i>
+                            </button>
+                        </div>
+                        <div class="balance-results mt-4">
+                            <h5>Balance Information</h5>
+                            <p class="mt-3"><strong>ETH Balance:</strong> <span id="balanceAmount" class="d-block mt-1">0.0</span></p>
+                            <p class="mt-3"><strong>USD Value:</strong> <span id="balanceAmountUSD" class="d-block mt-1">$0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Transaction Card -->
+            <div class="col-12">
+                <div class="card p-4 mt-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4"><i class="fas fa-paper-plane me-2"></i>Send Transaction</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="senderAddress" class="form-label">Sender Address</label>
+                                <input type="text" id="senderAddress" class="form-control" placeholder="Enter wallet address">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="privateKey" class="form-label">Private Key</label>
+                                <div class="private-key-container">
+                                    <input type="password" id="privateKey" class="form-control" placeholder="Enter private key">
+                                    <button class="toggle-private-key" onclick="toggleInputVisibility('privateKey', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="receiverAddress" class="form-label">Receiver Address</label>
+                                <input type="text" id="receiverAddress" class="form-control" placeholder="Enter receiver address">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="amount" class="form-label">Amount (ETH)</label>
+                                <input type="text" id="amount" class="form-control" placeholder="Enter amount">
+                            </div>
+                            <div class="col-12">
+                                <button id="sendTx" class="btn btn-primary w-100 py-2">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Transaction
+                                </button>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div id="transactionResult" style="display:none;">
+                                    <h5>Transaction Result</h5>
+                                    <p class="mt-2"><strong>Transaction Hash:</strong> <span id="txHash" class="d-block mt-1 wallet-address"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentNetwork = 'ganache';
+    
+    // Enhanced toggle functionality
+    function togglePrivateKeyVisibility(elementId, buttonElement) {
+        const element = document.getElementById(elementId);
+        const icon = buttonElement.querySelector('i');
+        
+        if (element.style.webkitTextSecurity === 'none' || 
+            element.style.textSecurity === 'none') {
+            element.style.webkitTextSecurity = 'disc';
+            element.style.textSecurity = 'disc';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+            element.style.webkitTextSecurity = 'none';
+            element.style.textSecurity = 'none';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+    }
+
+    // For input fields
+    function toggleInputVisibility(inputId, buttonElement) {
+        const input = document.getElementById(inputId);
+        const icon = buttonElement.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // Network Toggle
+    document.getElementById('networkToggle').addEventListener('click', () => {
+        currentNetwork = currentNetwork === 'ganache' ? 'infura' : 'ganache';
+        document.getElementById('networkText').innerText = 
+            currentNetwork === 'ganache' ? 'Ganache' : 'Infura';
+        console.log('Network switched to:', currentNetwork);
+    });
+
+    // Create Wallet
+    document.getElementById('createWallet').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/create_wallet', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Network response was not ok');
+            }
+            
+            const data = await response.json();
+            
+            document.getElementById('walletAddress').innerText = data.address;
+            document.getElementById('walletPrivateKey').innerText = data.private_key;
+            document.getElementById('walletInfo').style.display = 'block';
+            
+            // Hide private key by default
+            togglePrivateKeyVisibility('walletPrivateKey', document.querySelector('#walletInfo .toggle-private-key'));
+            
+        } catch (error) {
+            console.error('Error creating wallet:', error);
+            alert('Failed to create wallet: ' + error.message);
+        }
+    });
+
+    // Check Balance
+    document.getElementById('checkBalance').addEventListener('click', async () => {
+        const address = document.getElementById('checkBalanceAddress').value.trim();
+        
+        if (!address) {
+            alert('Please enter a wallet address');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/get_balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include',
+                body: JSON.stringify({ 
+                    address: address,
+                    network: currentNetwork
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Network response was not ok');
+            }
+            
+            const data = await response.json();
+            
+            document.getElementById('balanceAmount').innerText = data.balance;
+            document.getElementById('balanceAmountUSD').innerText = 
+                typeof data.usd_balance === 'string' ? 
+                data.usd_balance : 
+                `$${data.usd_balance.toFixed(2)}`;
+            
+        } catch (error) {
+            console.error('Error checking balance:', error);
+            alert('Failed to check balance: ' + error.message);
+        }
+    });
+
+    // Send Transaction
+    document.getElementById('sendTx').addEventListener('click', async () => {
+        const senderAddress = document.getElementById('senderAddress').value.trim();
+        const privateKey = document.getElementById('privateKey').value.trim();
+        const receiverAddress = document.getElementById('receiverAddress').value.trim();
+        const amount = document.getElementById('amount').value.trim();
+        
+        // Validate inputs
+        if (!senderAddress || !privateKey || !receiverAddress || !amount) {
+            alert('Please fill all fields');
+            return;
+        }
+        
+        if (isNaN(amount) || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        try {
+            // Show loading state
+            const sendBtn = document.getElementById('sendTx');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+
+            const response = await fetch('/send_transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    sender_address: senderAddress,
+                    private_key: privateKey,
+                    receiver_address: receiverAddress,
+                    amount: amount,
+                    network: currentNetwork
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            document.getElementById('txHash').innerText = data.transaction_hash;
+            document.getElementById('transactionResult').style.display = 'block';
+            
+        } catch (error) {
+            console.error('Error sending transaction:', error);
+            let errorMsg = error.message;
+            
+            // Handle specific errors
+            if (errorMsg.includes('insufficient funds')) {
+                errorMsg = 'Insufficient funds for this transaction';
+            } else if (errorMsg.includes('invalid sender')) {
+                errorMsg = 'Invalid sender address';
+            } else if (errorMsg.includes('invalid private key')) {
+                errorMsg = 'Invalid private key';
+            }
+            
+            alert(`Transaction failed: ${errorMsg}`);
+        } finally {
+            // Reset button state
+            const sendBtn = document.getElementById('sendTx');
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Transaction';
+        }
+    });
+</script>
+</body>
+</html>
