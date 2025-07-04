@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +12,10 @@ import logging
 from decimal import Decimal
 
 
-app = Flask(__name__)
+
+
+template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'your_strong_secret_key_here' 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///wallets.db'
 app.config['SESSION_COOKIE_SECURE'] = False  
