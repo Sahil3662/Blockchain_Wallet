@@ -1,0 +1,9 @@
+flask
+flask-login
+flask-cors
+flask-wtf
+flask-sqlalchemy
+web3
+cryptography
+gunicorn
+requests
